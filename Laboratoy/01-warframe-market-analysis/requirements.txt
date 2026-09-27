@@ -1,0 +1,2 @@
+# Dependencies for the warframe-market-analysis project only.
+# Add packages here; they install on top of the shared base image.

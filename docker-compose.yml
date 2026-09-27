@@ -1,0 +1,12 @@
+services:
+  lab:
+    build: .
+    image: data-science-lab:latest
+    userns_mode: keep-id
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - NOTEBOOK_ARGS=--IdentityProvider.token= --ServerApp.password= --ServerApp.root_dir=/home/jovyan/work
+    volumes:
+      - ./Laboratoy:/home/jovyan/work:z

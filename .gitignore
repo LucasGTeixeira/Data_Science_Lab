@@ -1,0 +1,24 @@
+# local-only guides
+personal_guides/
+
+# data (não versionar datasets)
+**/data/*
+!**/data/.gitkeep
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+.env
+
+# mlflow / outputs
+mlruns/
+*.joblib
+*.pkl
+
+# notebook pipeline outputs
+executed/
+
+# exported docker base image
+dsl-base-*.tar.gz
