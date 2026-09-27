@@ -1,2 +1,18 @@
 # local-only guides
-guides/
+personal_guides/
+
+# data (não versionar datasets)
+**/data/*
+!**/data/.gitkeep
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+.env
+
+# mlflow / outputs
+mlruns/
+*.joblib
+*.pkl
