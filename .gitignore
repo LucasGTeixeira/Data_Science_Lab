@@ -16,3 +16,9 @@ __pycache__/
 mlruns/
 *.joblib
 *.pkl
+
+# notebook pipeline outputs
+executed/
+
+# exported docker base image
+dsl-base-*.tar.gz

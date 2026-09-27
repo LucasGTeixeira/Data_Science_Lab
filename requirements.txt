@@ -1,0 +1,2 @@
+# Add your Python packages here, one per line.
+# The base image already ships pyspark, pandas, numpy, matplotlib and scikit-learn.

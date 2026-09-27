@@ -1,0 +1,21 @@
+x-jupyter: &jupyter
+  build: .
+  environment:
+    - JUPYTER_ENABLE_LAB=yes
+  volumes:
+    - ./Laboratoy:/home/jovyan/work
+
+services:
+  lab:
+    <<: *jupyter
+    ports:
+      - "8888:8888"
+
+  warframe-market-analysis:
+    <<: *jupyter
+    profiles: ["warframe"]
+    ports:
+      - "8889:8888"
+    volumes:
+      - ./Laboratoy:/home/jovyan/work
+      - ./Laboratoy/01-warframe-market-analysis:/home/jovyan/work/warframe
