@@ -1,6 +1,3 @@
-# local-only guides
-personal_guides/
-
 # data (não versionar datasets)
 **/data/*
 !**/data/.gitkeep
