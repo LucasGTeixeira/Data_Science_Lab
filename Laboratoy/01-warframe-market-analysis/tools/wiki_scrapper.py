@@ -59,9 +59,9 @@ def get_augment_mod_names(source=None):
     out = {}
     for row in _parse(_fetch(source, AUGMENT_URL), row_id_only=True):
         for mod in row.get("Mods", []):
+            mod = toSnakeCase(mod)
             out[mod] = row.get("Factions", [])
-    return toSnakeCase(out)
-
+    return out
 
 def get_bond_mod_names(source=None):
     """Retorna lista de nomes dos Bond Mods."""
