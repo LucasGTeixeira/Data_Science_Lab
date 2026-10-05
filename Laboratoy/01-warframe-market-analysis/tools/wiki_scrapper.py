@@ -2,10 +2,12 @@ import requests
 from html.parser import HTMLParser
 from pathlib import Path
 import re
+import logging
+import pandas as pd
+import time
 
 AUGMENT_URL = "https://wiki.warframe.com/w/Warframe_Augment_Mods"
 BOND_URL = "https://wiki.warframe.com/w/Bond_Mods"
-
 
 class _TooltipParser(HTMLParser):
     """Coleta spans com data-param-name agrupados por data-param-source,
@@ -50,8 +52,14 @@ def _parse(html, row_id_only):
     return parser.rows
 
 def toSnakeCase(string):
-    string = re.sub(r'(?<=[a-z])(?=[A-Z])|[^a-zA-Z]', ' ', string).strip().replace(' ', '_')
-    return ''.join(string.lower())
+    string = string.replace("'", "")
+    string = string.replace("&", "and")
+    string = re.sub(
+        r"(?<=[a-z])(?=[A-Z])|[^a-zA-Z&]",
+        " ",
+        string
+    ).strip().replace(" ", "_")
+    return string.lower()
 
 
 def get_augment_mod_names(source=None):
@@ -67,12 +75,45 @@ def get_bond_mod_names(source=None):
     """Retorna lista de nomes dos Bond Mods."""
     return [toSnakeCase(row["Mods"][0]) for row in _parse(_fetch(source, BOND_URL), row_id_only=False) if "Mods" in row]
 
+def get_order_request(url):
+    time.sleep(1)
+    response = requests.get(url)
+    response.raise_for_status()
+    return response
 
-if __name__ == "__main__":
-    here = Path(__file__).parent
-    bond = get_bond_mod_names(here / "html_bond_example.html")
-    assert len(bond) == 14 and "Aerial Bond" in bond
-    aug = get_augment_mod_names()
-    assert aug["Seeking Shuriken"] == ["Arbiters of Hexis", "Red Veil"]
-    assert len(aug) >= 200
-    print(f"{len(aug)} augment mods, {len(bond)} bond mods")
+def get_mod_offers_current(mod_names_list: list[str]):
+    df_concat = pd.DataFrame()
+    for mod_name in mod_names_list:
+        logging.info(f"Collecting orders from {mod_name}")
+        url = f"https://api.warframe.market/v2/orders/item/{mod_name}"
+        try:
+            mod_orders = get_order_request(url)
+        except Exception as e:
+            raise (f"Could not retrieve data from mod_name {mod_name}\nError: {e}")
+        df_order = pd.DataFrame(mod_orders.json()["data"])
+        df_order['mod_name'] = mod_name
+        df_concat = pd.concat([df_concat, df_order])
+    df_concat['user'] = df_concat['user'].str['ingameName']
+    df_concat = df_concat.sort_values('rank', ascending=False)
+    return df_concat
+
+def get_mod_offers_statistics(augment_mods_list:list[str]):
+    collect_modes = ["statistics_closed", "statistics_live"]
+    time_period = ["90days", "48hours"]
+    df_concat = pd.DataFrame()
+    for mod_name in augment_mods_list:
+        logging.info(f"Collecting timeseries from {mod_name}")
+        url = f"https://api.warframe.market/v1/items/{mod_name}/statistics"
+        try:
+            mod_orders = get_order_request(url)
+        except Exception as e:
+            raise (f"Could not retrieve data from mod_name {mod_name}\nError: {e}")
+        for mode in collect_modes:
+            for period in time_period:
+                df_order = pd.DataFrame(mod_orders.json()["payload"][mode][period])
+                df_order['period'] = period
+                df_order["mode"] = ("live" if mode == "statistics_live" else "closed")
+                df_order["mod_name"] = mod_name
+                df_concat = pd.concat([df_concat, df_order])
+    df_concat = df_concat.sort_values('datetime', ascending=False)
+    return df_concat
