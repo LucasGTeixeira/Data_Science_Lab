@@ -31,6 +31,7 @@ def augment_mods_collect_pipeline():
     return
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.info("Starting Data Collection")
     bond_mods_collect_pipeline()
     augment_mods_collect_pipeline()
