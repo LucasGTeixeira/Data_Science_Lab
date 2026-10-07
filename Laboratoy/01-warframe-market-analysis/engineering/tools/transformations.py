@@ -1,6 +1,7 @@
-#%%
 import pandas as pd
 import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 def show_dataframe_report(df: pd.DataFrame):
     logging.info(f"dataframe size {df.shape}")
@@ -30,11 +31,9 @@ def transform_orders_current(df: pd.DataFrame, output_name: str):
         ]
     ]
     
-    df.to_csv(f'../data/{output_name}.csv', sep=';', index=False)
+    df.to_csv(f'../data/processed/{output_name}.csv', sep=';', index=False)
     
 def transform_orders_statistics(df: pd.DataFrame, output_name: str):
-    logging.info('============================================')
-    logging.info('============================================')
     logging.info(f"transforming {output_name}")
     show_dataframe_report(df)
     for col_name in ['period', 'mod_rank', 'order_type', 'mode']:
@@ -60,11 +59,14 @@ def transform_orders_statistics(df: pd.DataFrame, output_name: str):
             'order_type'     # Tipo de ordem: buy = compra; sell = venda; null = quando closed
         ]
     ]
-    df = df.to_csv(f'../data/{output_name}.csv', sep=';', index=False)
+    df = df.to_csv(f'../data/processed/{output_name}.csv', sep=';', index=False)
 
 def order_current_processing():
-    df_bond_orders_current = pd.read_csv('../data/bond_mod_offers_current.csv', sep=';')
-    df_augment_orders_current = pd.read_csv('../data/augment_mod_offers_current.csv', sep=';')
+    logging.info("="*15)
+    logging.info("Processing Current Mod Data")
+    logging.info("="*15)
+    df_bond_orders_current = pd.read_csv('../data/raw/bond_mod_offers_current.csv', sep=';')
+    df_augment_orders_current = pd.read_csv('../data/raw/augment_mod_offers_current.csv', sep=';')
 
     for df_name, df in {
         'augment_mod_offers_current':df_augment_orders_current, 
@@ -73,17 +75,14 @@ def order_current_processing():
         transform_orders_current(df, df_name )
         
 def order_statistics_processing():
-    df_bond_orders_statistics = pd.read_csv('../data/bond_mod_offers_statistics.csv', sep=';')
-    df_augment_orders_statistics = pd.read_csv('../data/augment_mod_offers_statistics.csv', sep=';')
+    logging.info("="*15)
+    logging.info("Processing Statistics Mod Data")
+    logging.info("="*15)
+    df_bond_orders_statistics = pd.read_csv('../data/raw/bond_mod_offers_statistics.csv', sep=';')
+    df_augment_orders_statistics = pd.read_csv('../data/raw/augment_mod_offers_statistics.csv', sep=';')
     
     for df_name, df in{
         'augment_mod_offers_statistics':df_augment_orders_statistics,
         'bond_mod_offers_statistics': df_bond_orders_statistics
     }.items(): 
         transform_orders_statistics(df, df_name)
-
-#%%
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    order_current_processing()
-    order_statistics_processing()

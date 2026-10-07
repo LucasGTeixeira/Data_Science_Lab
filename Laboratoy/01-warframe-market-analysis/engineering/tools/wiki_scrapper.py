@@ -5,6 +5,7 @@ import re
 import logging
 import pandas as pd
 import time
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 AUGMENT_URL = "https://wiki.warframe.com/w/Warframe_Augment_Mods"
 BOND_URL = "https://wiki.warframe.com/w/Bond_Mods"
